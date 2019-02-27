@@ -5,7 +5,7 @@ import math
 import warnings
 import numpy as np
 import pandas as pd
-from data.data import process_data
+from data.dataNew import process_data
 from keras.models import load_model
 from keras.utils.vis_utils import plot_model
 import sklearn.metrics as metrics
@@ -60,9 +60,11 @@ def eva_regress(y_true, y_pred):
     print('mse:%f' % mse)
     print('rmse:%f' % math.sqrt(mse))
     print('r2:%f' % r2)
+    pre = 'predict:' + str(y_pred)
+    print(pre)
+    act = 'actual:' + str(y_true)
+    print(act)
 
-    print(y_pred)
-    print(y_true)
 
 def plot_results(y_true, y_preds, names):
     """Plot
@@ -73,6 +75,7 @@ def plot_results(y_true, y_preds, names):
         y_pred: List/ndarray, predicted data.
         names: List, Method names.
     """
+
     d = '2016-3-4 00:00'
     x = pd.date_range(d, periods=211, freq='5min')
 
@@ -96,36 +99,33 @@ def plot_results(y_true, y_preds, names):
 
 
 def main():
-    lstm = load_model('model/lstm.h5')
+    lstm = load_model('model/lstmNew.h5')
     gru = load_model('model/gru.h5')
-    saes = load_model('model/saes.h5')
-    models = [lstm, gru, saes]
-    names = ['LSTM', 'GRU', 'SAEs']
+    # saes = load_model('model/saes.h5')
+    models = [lstm]
+    names = ['LSTMNEW']
 
     lag = 6
-    file1 = 'data/compareData/train_data_compare(after6am).csv'
-    file2 = 'data/compareData/test_data_cluster0_compare(after6am).csv'
-    _, _, X_test, y_test, scaler = process_data(file1, file2, lag)
+    file1 = 'data/train_data_cluster0(after6am).csv'
+    file2 = 'data/test_data_cluster0(after6am).csv'
+    _, _, x_test, y_test, scaler = process_data(file1, file2, lag)
     y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
 
     y_preds = []
     for name, model in zip(names, models):
-        if name == 'SAEs':
-            # SAEs的输入形状[n-lags,lags]
-            X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1]))
-        else:
-            # GRU、LSTM输入形状[n-lags,lags,1]
-            X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
+
+        # GRU、LSTM输入形状[n-lags,lags,12]
+        x_test = np.reshape(x_test, (x_test.shape[0], lag, 4))
         file = 'images/' + name + '.png'
         # 模型结构
         plot_model(model, to_file=file, show_shapes=True)
-        predicted = model.predict(X_test)
+        predicted = model.predict(x_test)
         predicted = scaler.inverse_transform(predicted.reshape(-1, 1)).reshape(1, -1)[0]
-        y_preds.append(predicted[:211])
+        y_preds.append(predicted)
         print(name)
         eva_regress(y_test, predicted)
 
-    plot_results(y_test[: 211], y_preds, names)
+    plot_results(y_test, y_preds, names)
 
 
 if __name__ == '__main__':

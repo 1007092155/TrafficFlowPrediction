@@ -21,15 +21,20 @@ def process_data(train, test, lags):
         y_test: ndarray.
         scaler: StandardScaler.
     """
-    attr = 'Lane 1 Flow (Veh/5 Minutes)'
+
+    # 取车流量那一列的数据，并进行缺失值补全
+    # attr = 'Lane 1 Flow (Veh/5 Minutes)'
+    attr = 'aveSpeed'
     df1 = pd.read_csv(train, encoding='utf-8').fillna(0)
     df2 = pd.read_csv(test, encoding='utf-8').fillna(0)
 
     # scaler = StandardScaler().fit(df1[attr].values)
     scaler = MinMaxScaler(feature_range=(0, 1)).fit(df1[attr].values.reshape(-1, 1))
+    # 标准化后的值，均为一行数据
     flow1 = scaler.transform(df1[attr].values.reshape(-1, 1)).reshape(1, -1)[0]
     flow2 = scaler.transform(df2[attr].values.reshape(-1, 1)).reshape(1, -1)[0]
 
+    # 将训练数据和测试数据均处理为[n-lags,lags]的矩阵
     train, test = [], []
     for i in range(lags, len(flow1)):
         train.append(flow1[i - lags: i + 1])
@@ -38,8 +43,10 @@ def process_data(train, test, lags):
 
     train = np.array(train)
     test = np.array(test)
+    # 打乱训练数据顺序
     np.random.shuffle(train)
 
+    # 样本集和标签集X、y
     X_train = train[:, :-1]
     y_train = train[:, -1]
     X_test = test[:, :-1]

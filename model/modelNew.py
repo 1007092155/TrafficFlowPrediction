@@ -17,10 +17,13 @@ def get_lstm(units):
     """
 
     model = Sequential()
-    model.add(LSTM(units[1], input_shape=(units[0], 1), return_sequences=True))
-    model.add(LSTM(units[2]))
-    model.add(Dropout(0.1))
-    model.add(Dense(units[3], activation='sigmoid'))
+    model.add(LSTM(units[2], input_shape=(units[0], units[1]), return_sequences=True))
+    model.add(Dropout(0.2))
+    model.add(LSTM(units[3], input_shape=(units[0], units[1]), return_sequences=True))
+    model.add(Dropout(0.2))
+    model.add(LSTM(units[4]))
+    model.add(Dropout(0.2))
+    model.add(Dense(units[5], activation='relu'))
 
     return model
 
@@ -36,10 +39,10 @@ def get_gru(units):
     """
 
     model = Sequential()
-    model.add(GRU(units[1], input_shape=(units[0], 1), return_sequences=True))
-    model.add(GRU(units[2]))
+    model.add(GRU(units[2], input_shape=(units[0], units[1]), return_sequences=True))
+    model.add(GRU(units[3]))
     model.add(Dropout(0.2))
-    model.add(Dense(units[3], activation='sigmoid'))
+    model.add(Dense(units[4], activation='sigmoid'))
 
     return model
 
@@ -85,7 +88,7 @@ def get_saes(layers):
     saes.add(Activation('sigmoid'))
     saes.add(Dense(layers[3], name='hidden3'))
     saes.add(Activation('sigmoid'))
-    saes.add(Dropout(0.1))
+    saes.add(Dropout(0.2))
     saes.add(Dense(layers[4], activation='sigmoid'))
 
     models = [sae1, sae2, sae3, saes]
