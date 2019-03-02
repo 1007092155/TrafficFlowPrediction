@@ -86,14 +86,14 @@ def main(argv):
     args = parser.parse_args()
 
     lag = 6
-    config = {"batch": 256, "epochs": 500}
+    config = {"batch": 256, "epochs": 400}
     file1 = 'data/train_data_cluster0(after6am).csv'
     file2 = 'data/test_data_cluster0(after6am).csv'
     x_train, y_train, _, _, _ = process_data(file1, file2, lag)
 
     if args.model == 'lstmNew':
-        x_train = np.reshape(x_train, (x_train.shape[0], lag, 4))
-        m = modelNew.get_lstm([6, 4, 60, 60, 60, 1])
+        x_train = np.reshape(x_train, (x_train.shape[0], lag, 6))
+        m = modelNew.get_lstm([6, 6, 20, 20, 1])
         train_model(m, x_train, y_train, args.model, config)
     if args.model == 'gru':
         x_train = np.reshape(x_train, (x_train.shape[0], lag, 12))

@@ -25,7 +25,7 @@ def train_model(model, X_train, y_train, name, config):
         config: Dict, parameter for train.
     """
 
-    model.compile(loss="mse", optimizer="rmsprop", metrics=['mape'])
+    model.compile(loss="mse", optimizer="rmsprop", metrics=['rmse'])
     # early = EarlyStopping(monitor='val_loss', patience=30, verbose=0, mode='auto')
     hist = model.fit(
         X_train, y_train,
@@ -81,7 +81,7 @@ def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--model",
-        default="lstm",
+        default="ann",
         help="Model to train.")
     args = parser.parse_args()
 
@@ -89,11 +89,15 @@ def main(argv):
     config = {"batch": 256, "epochs": 200}
     file1 = 'data/compareData/train_data_compare(after6am).csv'
     file2 = 'data/compareData/test_data_cluster0_compare(after6am).csv'
-    X_train, y_train, _, _, _ = process_data(file1, file2, lag)
+    X_train, y_train, X_test, y_test, scaler = process_data(file1, file2, lag)
 
     if args.model == 'lstm':
         X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))
         m = model.get_lstm([6, 100, 100, 1])
+        train_model(m, X_train, y_train, args.model, config)
+    if args.model == 'ann':
+        X_train = np.reshape(X_train, (X_train.shape[0],X_train.shape[1]))
+        m = model.get_ann([6, 20, 1])
         train_model(m, X_train, y_train, args.model, config)
     if args.model == 'gru':
         X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))

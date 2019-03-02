@@ -18,12 +18,12 @@ def get_lstm(units):
 
     model = Sequential()
     model.add(LSTM(units[2], input_shape=(units[0], units[1]), return_sequences=True))
-    model.add(Dropout(0.2))
-    model.add(LSTM(units[3], input_shape=(units[0], units[1]), return_sequences=True))
-    model.add(Dropout(0.2))
-    model.add(LSTM(units[4]))
-    model.add(Dropout(0.2))
-    model.add(Dense(units[5], activation='relu'))
+    model.add(Dropout(0.3))
+    # model.add(LSTM(units[3], input_shape=(units[0], units[1]), return_sequences=True))
+    # model.add(Dropout(0.2))
+    model.add(LSTM(units[3]))
+    model.add(Dropout(0.3))
+    model.add(Dense(units[4], activation='sigmoid'))
 
     return model
 

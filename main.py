@@ -11,6 +11,7 @@ from keras.utils.vis_utils import plot_model
 import sklearn.metrics as metrics
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from sklearn import svm
 warnings.filterwarnings("ignore")
 
 
@@ -99,26 +100,34 @@ def main():
     lstm = load_model('model/lstm.h5')
     gru = load_model('model/gru.h5')
     saes = load_model('model/saes.h5')
-    models = [lstm, gru, saes]
-    names = ['LSTM', 'GRU', 'SAEs']
+    ann = load_model('model/ann.h5')
+    svr = svm.SVR(kernel='rbf')
+    # models = [lstm, gru, saes, ann, svr]
+    # names = ['LSTM', 'GRU', 'SAEs', 'ANN', 'SVR']
+    models = [svr]
+    names = ['SVR']
 
     lag = 6
     file1 = 'data/compareData/train_data_compare(after6am).csv'
-    file2 = 'data/compareData/test_data_cluster0_compare(after6am).csv'
-    _, _, X_test, y_test, scaler = process_data(file1, file2, lag)
+    file2 = 'data/compareData/test_data_cluster2_compare(after6am).csv'
+    X_train, y_train, X_test, y_test, scaler = process_data(file1, file2, lag)
     y_test = scaler.inverse_transform(y_test.reshape(-1, 1)).reshape(1, -1)[0]
 
     y_preds = []
     for name, model in zip(names, models):
-        if name == 'SAEs':
+        if name == 'SAEs' or name == 'ANN':
             # SAEs的输入形状[n-lags,lags]
             X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1]))
+        elif name == 'SVR':
+            X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1]))
+            model.fit(X_train, y_train)
         else:
             # GRU、LSTM输入形状[n-lags,lags,1]
             X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], 1))
         file = 'images/' + name + '.png'
         # 模型结构
-        plot_model(model, to_file=file, show_shapes=True)
+        if name != 'SVR':
+            plot_model(model, to_file=file, show_shapes=True)
         predicted = model.predict(X_test)
         predicted = scaler.inverse_transform(predicted.reshape(-1, 1)).reshape(1, -1)[0]
         y_preds.append(predicted[:211])

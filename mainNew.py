@@ -115,7 +115,7 @@ def main():
     for name, model in zip(names, models):
 
         # GRU、LSTM输入形状[n-lags,lags,12]
-        x_test = np.reshape(x_test, (x_test.shape[0], lag, 4))
+        x_test = np.reshape(x_test, (x_test.shape[0], lag, 6))
         file = 'images/' + name + '.png'
         # 模型结构
         plot_model(model, to_file=file, show_shapes=True)

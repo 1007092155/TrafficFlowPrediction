@@ -44,6 +44,15 @@ def get_gru(units):
     return model
 
 
+def get_ann(units):
+    model = Sequential()
+    model.add(Dense(units[1], activation='relu', input_dim=units[0]))
+    # model.add(Dense(units[2], activation='relu'))
+    model.add(Dense(units[2], activation='linear'))
+
+    return model
+
+
 def _get_sae(inputs, hidden, output):
     """SAE(Auto-Encoders)
     Build SAE Model.
